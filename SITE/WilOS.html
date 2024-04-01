@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+	
+	<head>
+		<meta charset="utf-8" />
+    	<meta name="viewport" content="width=device-width" />
+		<link
+  			href="http://fonts.googleapis.com/css?family=Open+Sans"
+  			rel="stylesheet"
+  			type="text/css" />
+
+		
+		<link href="css/main.css" rel="stylesheet" type="text/css" />
+		
+   	    <title>WilOS, un OS libre de droit</title>
+	</head>
+	
+	<body>
+		<nav>
+			<ul>
+				<li><a href="home.html">Accueil</a></li>
+				<li><a href="CeSite.html">Ce site</a></li>
+				<li><a href="Biographie.html">À Propos</a></li>
+				<li><a href="#">Liens utiles</a></li>
+				<!-- Ajoutez d'autres liens de menu ici -->
+			</ul>
+		</nav>
+		<div class="like-dislike">
+			<button onclick="like()" class="like-button">J'aime</button>
+			<button onclick="dislike()" class="dislike-button">Je n'aime pas</button>
+		</div>
+		<p class="count"><span id="dislikes">0</span></p><p class="count2"><span id="likes">0</span></p>
+
+
+		
+		<h1>C'est quoi WilOS ?</h1>
+
+		<p>WilOS est un peti projet pour s'amuser. En fait, c’est un système d’exploitation (OS) libre et gratuit. Mais pourquoi donc créer un nouvel OS alors qu’il y en a déjà plusieurs, Linux, Windows, MacOS, BSD.
+			Donc d’une part, pour avoir un OS qui tourne sur un autre noyau que le noyau UNIX. Mais c’est aussi pour avoir un OS qui fonctionne sans rammer sur la grande majorité des processeurs. Et c'est surtout parce que c'est amusant.
+			Ainsi, il devrait fonctionner sur microcontrôller 32 bits telle que l’ESP32, le STM32 et le RP2040. Evidemment, vous vous doutez bien que ce ne sera pas un OS très graphique sur certains support.
+			Cependant, l’utilisation d’écran TFT en couleur pourra peut-être être envisageable pour les microcontrôllers ayant assez de puissance pour. Mais, il serait plus fait pour de vrais petits ordinateurs.
+			Je pense notamment aux Raspberry Pi (version potentiel dessus), mais surtout à un vieux processeur que plus personne n’utilise.</p>
+		
+		<h1>Les composants pour créer un mini PC pour WilOS</h1>
+		<p>Ce vieux processeur est un 6502 ou plutôt, en fait parti. Les 6502 ont été utilisé dans les premiers PC Apple, dans l’atari2600 (version moins puissante appelé 2600), dans la NES, et bien d’autres.
+			Donc comme on peut le constater, il est très polyvalent et peu cher. Seulement, nous ne pouvons plus en acheter d’origine, ils sont trop vieux. Nous pouvons, cependant, acheter de nouvelles versions sur certains sites.
+			Je pense par exemple à la marque The Western Design Center, Inc qui fait des 6502.
+			Je vais pour ma part utilisé un W65C02S, un processeur 8-bit avec plus ou moins 1MHZ. Si vous voulez vous le procurez, vous pouvez simplement regarder sur leur site. 
+			Mais il faut aussi acheter une mémoire RAM (variables, …) et EEPROM (stocker le programme, …).
+			Les deux mémoires seront donc assez petites. Je trouverai une solution si ce n’est pas assez. Comme l’utilisation du carte microSD en SPI.
+			Ce sera la principale version de WilOS pour l’instant. Il n’y aura pas d’écran graphique mais un écran LCD 16x2, ce sont des écrans très utilisé sur des Arduino est autres microcontrôller. 
+			Ils contiennent souvent une puce Hitachi (HD44780U) qui gèrent absolument tout l’affichage. Celle-ci contient des Opcodes et un RAM interne afin de stocker le rendu. Ces écrans sont souvent utilisé avec un bibliothèques externes. 
+			Il est cependant très facile de l’utilisé sans bibliothèque. Il faut juste comprendre son fonctionnement, pour cela il suffit de lire la datasheet de la puce.</p>
+		
+		<h1>WilOS en détaille</h1>
+		
+		
+		<h3>1.L'idée du terminal</h3>
+		<p>Pour le fonctionnement du processeur, j’imagine un terminal comme sur certains Linux, rien qu’une console ou l’on tape des commandes. Donc le pseudo-code derrière cette idée pourrait être :</p>
+		<p class="code">Demande une commande<br>
+			if commande = … faire …<br>
+			elif …</p>
+		<p>Le problème c’est que pour rajouter des applications, il faut aller dans le code pour rajouter une condition pour l’application.
+			C’est le problème que j’ai eu sur ESP32. Il faut donc agir comme sur un vrai OS, il faut développer un noyau. Il serait charger de tout commander, voici un pseudo-code pour résoudre le problème précédent :</p>
+		<p class="code">Demande une commande<br>
+			regarde si un programme a le même nom<br>
+			si oui on l’execute<br>
+			sinon on dit que ca n’existe pas</p>
+		<p>Le problème est donc résolu. Ça fonctionne déjà mieux pour l’ajout d’applications. Il nous manque un moyen de parcourir tout les fichiers afin de trouver le programme.
+			Pour cela, on peut imaginer que l’on cherche que dans le répertoire où l’on est et dans un répertoire appelé « Applications ».</p>
+		
+		<h3>2.L'idée du langage de programmation</h3>
+		<p>Il nous faut encore un langage pour les programmes. On pourrait tous les faire en assembleur mais ce serait vachemment redondant et fatiguant. À la place, il nous faut un langage de haut niveau compilé.
+			Encore une fois, nous pourrions utilisé un langage telle que le C, le C++ ou encore le Pascal. Je préfère cependant coder le mien. Ce sera une copie du C parce que c’est un langage connu est polyvalent. 
+			Le problème n’est pas le langage mais le compilateur. Un compilateur est chargé de transformer un code source en un langage machine. Pour en créer un, il faut regarder comment le code devient quand on compile un code source C. 
+			Ensuite nous analysons l’assembleur. Cependant, tout semble incompréhensif.
+			Le code ci-dessous en C deviens de l’assembleur :</p>
+		<pre class="code">#include <stdio.h>
+#include <stdbool.h>
+
+int main()
+{
+	int a = 5;
+	int b = 10;
+	int c = a + b;
+	printf("La somme de %d et %d est %d\n", a, b, c);
+	while(true)
+	{
+		printf("Infini");
+	}
+	return 0;
+}</pre>
+		</stdbool.h>
+		</stdio.h>
+		
+		<p>En assembleur :</p>
+		<pre class="code">	.arch armv8-a
+	.file	"main.c"
+	.text
+	.section	.rodata
+	.align	3
+.LC0:
+	.string	"La somme de %d et %d est %d\n"
+	.align	3
+.LC1:
+	.string	"Infini"
+	.text
+	.align	2
+	.global	main
+	.type	main, %function
+main:
+.LFB0:
+	.cfi_startproc
+	stp	x29, x30, [sp, -32]!
+	.cfi_def_cfa_offset 32
+	.cfi_offset 29, -32
+	.cfi_offset 30, -24
+	mov	x29, sp
+	mov	w0, 5
+	str	w0, [sp, 20]
+	mov	w0, 10
+	str	w0, [sp, 24]
+	ldr	w1, [sp, 20]
+	ldr	w0, [sp, 24]
+	add	w0, w1, w0
+	str	w0, [sp, 28]
+	ldr	w3, [sp, 28]
+	ldr	w2, [sp, 24]
+	ldr	w1, [sp, 20]
+	adrp	x0, .LC0
+	add	x0, x0, :lo12:.LC0
+	bl	printf
+.L2:
+	adrp	x0, .LC1
+	add	x0, x0, :lo12:.LC1
+	bl	printf
+	b	.L2
+	.cfi_endproc
+.LFE0:
+	.size	main, .-main
+	.ident	"GCC: (Ubuntu 13.2.0-4ubuntu3) 13.2.0"
+	.section	.note.GNU-stack,"",@progbits</pre>
+		
+		
+		
+		<p>Donc voilà le code, c’est vraiment incompréhensible. Si certaines personnes comprennent, vous pouvez m’envoyer un Email pour m’expliquer. N’hésiter pas à me partager vos retours. 
+			Je comprends juste que le processeurs charge des registres et les additionne. Je n’ai jamais fait d’assembleur sur RPI5. En effet c’est l’ordinateur que j’utilise pour programmer et tout ça. 
+			J’ai, cependant fait de l’assembleur sur RPI4 et j’essaye de me dire que ce n’est pas si différent et c’est le cas. A par quelques lignes que je ne comprends pas, seul les noms des registres ont changé. 
+			Normalement, j’utiliserai le VASM pour coder mon OS. Donc on doit regarder chaque ligne une par une et vérifier ce que l’instruction fait. Donc place au pseudo-code :</p>
+		<pre class="code">regarde chaque ligne une par une
+if ligne = … alors … 
+elif ligne = … alors… 
+elif ligne n’existe pas alors … </pre>
+		<p>Donc c’est quasiment le même pseudo-code que pour le « terminal ». Sauf que la différence est que dans un langage, on ajoute pas des fonctionnalités comme on ajouterai des applications à un OS. 
+			Pour ajouter des fonctionnalités, il suffit de recréer le système de bibliothèque du C. Au début du fichier on indique les bibliothèques que l’on souhaite utilisé. 
+			Ensuite le compilateur cherche le ficher dans le dossier où se trouve le code source et aussi dans un répertoire appelé Library. Dans l’éxécutable, il y aura donc le notre code source compilé et la bibliothèque compilé. 
+			Ce qui permettra de pouvoir l’éxécuter sur des systèmes ne possédant pas la bibliothèque.</p>
+		
+		<script src="script/wiloslike.js"></script>
+	</body>
+	
+</html>

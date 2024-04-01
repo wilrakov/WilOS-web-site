@@ -1,0 +1,112 @@
+html {
+    font-size: 10px; /* px signifie 'pixels': la taille de base pour la police est désormais 10 pixels de haut  */
+    font-family: "Open Sans", sans-serif; /* cela devrait être le reste du résultat obtenu à partir de Google fonts */
+	background-color: #5ABDFE;
+}
+body {
+    width: 1000px;
+    margin: 0 auto;
+    background-color: #6299F7;
+    padding: 0 20px 20px 20px;
+    border: 5px solid black;
+}
+img{
+	display: block;
+	width: 250px;
+	height: 250px;
+	margin: auto;
+}
+
+
+h1 {
+	font-size: 30px;
+    margin: 0;
+    padding: 20px 0;
+    color: #015FFE;
+    text-shadow: 3px 3px 1px black;
+	text-align: center;
+}
+h3 {
+	font-size: 20px;
+    margin: 0;
+    padding: 20px 0;
+    color: #015FFE;
+	text-align: center;
+}
+
+
+p,
+.project{
+    font-size: 16px;
+    line-height: 2;
+    letter-spacing: 1px;
+}
+
+.code {
+    font-size: 16px;
+    line-height: 2;
+    letter-spacing: 1px;
+    background-color: #434343;
+    color: #9D7ECD;
+    margin: 0 auto;
+    border: 3px solid blue;
+}
+nav {
+    background-color: #333;
+    color: #fff;
+    width: 435px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    font-size: 16px;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    padding: 10px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+.count {
+    position: absolute;
+    top: 4px;
+    right: 460px;
+    font-size: 20px;
+    color: white;
+}
+.count2 {
+    position: absolute;
+    top: 4px;
+    right: 637px;
+    font-size: 20px;
+    color: white;
+}
+
+.like-dislike{
+    text-align: right;
+    margin-top: 20px
+}
+
+.like-dislike button{
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    margin-right: 55px;
+    cursor: pointer;
+}
+.like-like button:hover {
+    background-color: #2980b9;
+}
+.email {
+    color: #333;
+}
+
